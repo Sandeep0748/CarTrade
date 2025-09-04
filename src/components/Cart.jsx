@@ -1,19 +1,56 @@
-// src/components/Cart.jsx
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { assets } from "../assets/assets";
+import { useAppContext } from "../context/AppContext";
+import toast from "react-hot-toast";
 
 const Cart = () => {
+  const { axios, user, currency } = useAppContext();
   const [cartItems, setCartItems] = useState([]);
 
-  useEffect(() => {
-    const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
-    setCartItems(storedCart);
-  }, []);
+  // Fetch cart from backend
+  const fetchCart = async () => {
+    try {
+      const { data } = await axios.get("/api/cart/user");
+      if (data.success) {
+        setCartItems(data.cart);
+      } else {
+        toast.error(data.message || "Failed to load cart");
+      }
+    } catch (err) {
+      console.log(err);
+      toast.error("Error fetching cart");
+      // fallback to localStorage
+      const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
+      setCartItems(storedCart);
+    }
+  };
 
-  const removeItem = (id) => {
-    const updatedCart = cartItems.filter((item) => item.id !== id);
-    setCartItems(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
+  useEffect(() => {
+    if (user) fetchCart();
+    else {
+      const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
+      setCartItems(storedCart);
+    }
+  }, [user]);
+
+  // Remove item
+  const removeItem = async (id) => {
+    try {
+      if (user) {
+        const { data } = await axios.delete(`/api/cart/${id}`);
+        if (data.success) {
+          setCartItems(data.cart);
+          toast.success("Removed from cart");
+        } else toast.error(data.message);
+      } else {
+        const updatedCart = cartItems.filter((item) => item.id !== id);
+        setCartItems(updatedCart);
+        localStorage.setItem("cart", JSON.stringify(updatedCart));
+      }
+    } catch (err) {
+      console.log(err);
+      toast.error("Failed to remove item");
+    }
   };
 
   const totalPrice = cartItems.reduce((acc, item) => acc + item.price, 0);
@@ -39,24 +76,24 @@ const Cart = () => {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {cartItems.map((item) => (
               <div
-                key={item.id}
+                key={item._id || item.id}
                 className="bg-white rounded-xl shadow-md hover:shadow-lg transition p-4 relative"
               >
                 {/* Car Image */}
                 <div className="h-40 w-full overflow-hidden rounded-lg mb-4">
                   <img
                     src={item.image || assets.main_car}
-                    alt={item.name}
+                    alt={item.name || item.brand + " " + item.model}
                     className="w-full h-full object-cover"
                   />
                 </div>
 
                 {/* Car Info */}
                 <h2 className="font-semibold text-lg text-gray-800">
-                  {item.name}
+                  {item.name || item.brand + " " + item.model}
                 </h2>
                 <p className="text-blue-600 font-bold text-md mt-1">
-                  ₹{item.price?.toLocaleString()}
+                  {currency}{item.price?.toLocaleString()}
                 </p>
                 {item.fuel && (
                   <p className="text-gray-500 text-sm">
@@ -66,7 +103,7 @@ const Cart = () => {
 
                 {/* Remove Button */}
                 <button
-                  onClick={() => removeItem(item.id)}
+                  onClick={() => removeItem(item._id || item.id)}
                   className="absolute top-3 right-3 bg-red-500 hover:bg-red-600 text-white w-8 h-8 flex items-center justify-center rounded-full shadow-md transition"
                   title="Remove from Cart"
                 >
@@ -79,7 +116,7 @@ const Cart = () => {
           {/* Cart Summary */}
           <div className="mt-8 bg-gray-100 p-6 rounded-xl shadow-md flex flex-col sm:flex-row justify-between items-center">
             <h2 className="text-xl font-semibold">
-              Total: <span className="text-blue-600">₹{totalPrice.toLocaleString()}</span>
+              Total: <span className="text-blue-600">{currency}{totalPrice.toLocaleString()}</span>
             </h2>
             <button className="mt-4 sm:mt-0 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
               Proceed to Checkout

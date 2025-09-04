@@ -26,7 +26,7 @@ const CarCard = ({ car }) => {
           </div>
           <div className='flex items-center gap-2 bg-transparent text-primary text-sm px-3 py-1 rounded-full font-semibold'>
             <span>Starting Price:</span>
-            <span>{currency}{car.pricePerDay*1000+99}</span>
+            <span>{currency}{car.pricePerDay}</span>
           </div>
         </div>
 

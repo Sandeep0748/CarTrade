@@ -1,28 +1,59 @@
-import React, { useState } from 'react';
-import Titles from '../components/Titles';
-import { assets, dummyCarData } from '../assets/assets';
+import React, { useEffect, useState } from 'react';
+import Title from '../components/Title';
+import { assets } from '../assets/assets';
 import CarCard from '../components/CarCard';
+import { useAppContext } from '../context/AppContext';
+import { motion } from 'motion/react';
 
 const Cars = () => {
+  const { cars } = useAppContext(); // ✅ Cars from backend API
   const [input, setInput] = useState('');
+  const [filteredCars, setFilteredCars] = useState([]);
 
-  // Filter cars based on search input
-  const filteredCars = dummyCarData.filter((car) =>
-    `${car.make} ${car.model} ${car.features}`
-      .toLowerCase()
-      .includes(input.toLowerCase())
-  );
+  // Apply filter
+  const applyFilter = () => {
+    if (input === '') {
+      setFilteredCars(cars);
+      return;
+    }
+
+    const filtered = cars.filter(
+      (car) =>
+        car.brand.toLowerCase().includes(input.toLowerCase()) ||
+        car.model.toLowerCase().includes(input.toLowerCase()) ||
+        (car.features && car.features.toLowerCase().includes(input.toLowerCase())) ||
+        (car.category && car.category.toLowerCase().includes(input.toLowerCase()))
+    );
+    setFilteredCars(filtered);
+  };
+
+  // Run filter whenever input/cars update
+  useEffect(() => {
+    if (cars.length > 0) {
+      applyFilter();
+    }
+  }, [input, cars]);
 
   return (
     <div>
       {/* Title & Search */}
-      <div className="flex flex-col items-center py-20 bg-gray-50 max-md:px-4">
-        <Titles
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className="flex flex-col items-center py-20 bg-gray-50 max-md:px-4"
+      >
+        <Title
           title="Cars for Sale on CarTrade"
-          subTitle="Explore verified listings across India and find the car that fits your lifestyle and budget"
+          subTitle="Browse verified listings and find the car that fits your lifestyle and budget"
         />
 
-        <div className="flex items-center bg-white px-4 mt-6 max-w-2xl w-full h-12 rounded-full shadow border border-gray-200">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+          className="flex items-center bg-white px-4 mt-6 max-w-2xl w-full h-12 rounded-full shadow border border-gray-200"
+        >
           <img
             src={assets.search_icon}
             alt="search"
@@ -33,7 +64,7 @@ const Cars = () => {
             onChange={(e) => setInput(e.target.value)}
             value={input}
             type="text"
-            placeholder="Search by make, model, or features (e.g., Maruti Swift, Diesel)"
+            placeholder="Search by brand, model, category, or features"
             className="w-full h-full outline-none text-gray-600 placeholder:text-gray-400"
           />
 
@@ -42,23 +73,34 @@ const Cars = () => {
             alt="filter"
             className="w-5 h-5 ml-3 opacity-70 cursor-pointer"
           />
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Cars List */}
-      <div className="px-6 md:px-16 lg:px-24 xl:px-32 mt-10">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6, duration: 0.5 }}
+        className="px-6 md:px-16 lg:px-24 xl:px-32 mt-10"
+      >
         <p className="text-gray-600 xl:px-20 max-w-7xl mx-auto text-sm md:text-base">
-          Showing <span className="font-semibold">{filteredCars.length}</span> cars in India
+          Showing <span className="font-semibold">{filteredCars.length}</span>{' '}
+          cars available
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-6 xl:px-20 max-w-7xl mx-auto">
           {filteredCars.map((car, index) => (
-            <div key={index}>
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 * index, duration: 0.4 }}
+            >
               <CarCard car={car} />
-            </div>
+            </motion.div>
           ))}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };
