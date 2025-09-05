@@ -33,8 +33,17 @@ const ManageBookings = () => {
     }
   }
 
+  // Clear bookings
+  const clearBookings = () => {
+    setBookings([])                     // Clear table
+    localStorage.setItem("bookingsCleared", "true")  // persist cleared state
+    toast('Bookings cleared', { icon: '🗑️' })
+  }
+
   useEffect(()=>{
-    fetchOwnerBookings()
+    if(localStorage.getItem("bookingsCleared") !== "true"){
+      fetchOwnerBookings()
+    }
   },[])
 
   return (
@@ -55,7 +64,11 @@ const ManageBookings = () => {
             </tr>
           </thead>
           <tbody>
-            {bookings.map((booking, index)=>(
+            {bookings.length === 0 ? (
+              <tr>
+                <td colSpan={5} className='text-center p-4 text-gray-500'>No bookings available.</td>
+              </tr>
+            ) : bookings.map((booking, index)=>(
               <tr key={index} className='border-t border-borderColor text-gray-500'>
 
                 <td className='p-3 flex items-center gap-3'>
@@ -90,6 +103,16 @@ const ManageBookings = () => {
           </tbody>
         </table>
 
+      </div>
+
+      {/* Clear Bookings Button at the bottom */}
+      <div className="w-full max-w-3xl mt-6">
+        <button
+          onClick={clearBookings}
+          className="w-full px-6 py-3 bg-blue-500 text-white text-lg rounded-md hover:bg-blue-600 transition"
+        >
+          Clear Bookings
+        </button>
       </div>
 
     </div>

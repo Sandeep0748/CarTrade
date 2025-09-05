@@ -1,9 +1,9 @@
-import React from 'react'
-import toast from 'react-hot-toast';
-import { useAppContext } from '../context/AppContext'; // make sure you import
+import React from "react";
+import toast from "react-hot-toast";
+import { useAppContext } from "../context/AppContext";
 
 const Login = () => {
-  const { setShowLogin, axios, setToken, navigate } = useAppContext();
+  const { setShowLogin, axios, setToken, setUser, setIsOwner, navigate } = useAppContext();
 
   const [state, setState] = React.useState("login");
   const [name, setName] = React.useState("");
@@ -11,19 +11,34 @@ const Login = () => {
   const [password, setPassword] = React.useState("");
 
   const handleSubmit = async (event) => {
+    event.preventDefault();
     try {
-      event.preventDefault();
       const { data } = await axios.post(`/api/user/${state}`, { name, email, password });
+
       if (data.success) {
-        navigate('/');
+        // set token
         setToken(data.token);
-        localStorage.setItem('token', data.token);
+        localStorage.setItem("token", data.token);
+        axios.defaults.headers.common["Authorization"] = data.token;
+
+        // set user
+        if (data.user) {
+          setUser(data.user);
+          localStorage.setItem("user", JSON.stringify(data.user));
+          const ownerEmail = "test2@mail.com";
+          const ownerStatus = data.user.email === ownerEmail;
+          setIsOwner(ownerStatus);
+          localStorage.setItem("isOwner", ownerStatus);
+        }
+
+        toast.success("Login successful!");
         setShowLogin(false);
+        navigate("/");
       } else {
         toast.error(data.message);
       }
-    } catch (error) {
-      toast.error(error.message);
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message);
     }
   };
 
@@ -83,20 +98,14 @@ const Login = () => {
         {state === "register" ? (
           <p>
             Already have account?{" "}
-            <span
-              onClick={() => setState("login")}
-              className="text-indigo-500 cursor-pointer"
-            >
+            <span onClick={() => setState("login")} className="text-indigo-500 cursor-pointer">
               click here
             </span>
           </p>
         ) : (
           <p>
             Create an account?{" "}
-            <span
-              onClick={() => setState("register")}
-              className="text-indigo-500 cursor-pointer"
-            >
+            <span onClick={() => setState("register")} className="text-indigo-500 cursor-pointer">
               click here
             </span>
           </p>
