@@ -1,0 +1,14 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/cars", "destination": "/index.html" },
+    { "source": "/car/:id", "destination": "/index.html" },
+    { "source": "/mybookings", "destination": "/index.html" },
+    { "source": "/profile", "destination": "/index.html" },
+    { "source": "/owner", "destination": "/index.html" },
+    { "source": "/owner/addcar", "destination": "/index.html" },
+    { "source": "/owner/dashboard", "destination": "/index.html" },
+    { "source": "/owner/managebookings", "destination": "/index.html" },
+    { "source": "/owner/managecars", "destination": "/index.html" }
+  ]
+}
