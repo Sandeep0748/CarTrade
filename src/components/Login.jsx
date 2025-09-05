@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import { useAppContext } from "../context/AppContext";
 
 const Login = () => {
-  const { setShowLogin, axios, setToken, setUser, setIsOwner, navigate } = useAppContext();
+  const { setShowLogin, axios, setToken, setUser, setIsOwner, navigate, fetchUser } = useAppContext();
 
   const [state, setState] = React.useState("login");
   const [name, setName] = React.useState("");
@@ -21,15 +21,8 @@ const Login = () => {
         localStorage.setItem("token", data.token);
         axios.defaults.headers.common["Authorization"] = data.token;
 
-        // set user
-        if (data.user) {
-          setUser(data.user);
-          localStorage.setItem("user", JSON.stringify(data.user));
-          const ownerEmail = "test2@mail.com";
-          const ownerStatus = data.user.email === ownerEmail;
-          setIsOwner(ownerStatus);
-          localStorage.setItem("isOwner", ownerStatus);
-        }
+        // fetch user to update context and owner status
+        await fetchUser();
 
         toast.success("Login successful!");
         setShowLogin(false);
