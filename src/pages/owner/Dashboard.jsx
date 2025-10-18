@@ -31,7 +31,8 @@ const Dashboard = () => {
           totalCars: response.dashboardData.totalCars,
           totalBookings: response.dashboardData.totalBookings,
           pendingBookings: response.dashboardData.pendingBookings,
-          completedBookings: response.dashboardData.completeBookings,
+          // backend uses `completedBookings` — support both keys if backend has typo
+          completedBookings: response.dashboardData.completedBookings || response.dashboardData.completeBookings || 0,
           recentBookings: response.dashboardData.recentBookings,
           monthlyRevenue: response.dashboardData.monthlyRevenue,
         });

@@ -10,7 +10,6 @@ export const AppContext = createContext();
 export const AppProvider = ({ children }) => {
   const navigate = useNavigate();
   const currency = import.meta.env.VITE_CURRENCY;
-  const ownerEmail = "test2@mail.com";
 
   // Initialize state with localStorage
   const [token, setToken] = useState(() => localStorage.getItem("token") || null);
@@ -36,8 +35,8 @@ export const AppProvider = ({ children }) => {
       if (data.success) {
         setUser(data.user);
         localStorage.setItem("user", JSON.stringify(data.user));
-
-        const ownerStatus = data.user.email === ownerEmail;
+        // derive owner status from server-side role to stay in sync with backend authorization
+        const ownerStatus = data.user.role === 'owner';
         setIsOwner(ownerStatus);
         localStorage.setItem("isOwner", ownerStatus);
       }
