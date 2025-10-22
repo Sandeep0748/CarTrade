@@ -36,14 +36,13 @@ const ManageBookings = () => {
   // Clear bookings
   const clearBookings = () => {
     setBookings([])                     // Clear table
-    localStorage.setItem("bookingsCleared", "true")  // persist cleared state
+    // Do not persist cleared state to localStorage so new bookings will still be fetched
     toast('Bookings cleared', { icon: '🗑️' })
   }
 
+  // Always fetch owner bookings on mount so new bookings appear in the table
   useEffect(()=>{
-    if(localStorage.getItem("bookingsCleared") !== "true"){
-      fetchOwnerBookings()
-    }
+    fetchOwnerBookings()
   },[])
 
   return (
@@ -105,11 +104,18 @@ const ManageBookings = () => {
 
       </div>
 
-      {/* Clear Bookings Button at the bottom */}
-      <div className="w-full max-w-3xl mt-6">
+      {/* Actions: Refresh and Clear Bookings */}
+      <div className="w-full max-w-3xl mt-6 flex gap-4">
+        <button
+          onClick={fetchOwnerBookings}
+          className="flex-1 px-6 py-3 bg-gray-200 text-gray-800 text-lg rounded-md hover:bg-gray-300 transition"
+        >
+          Refresh Bookings
+        </button>
+
         <button
           onClick={clearBookings}
-          className="w-full px-6 py-3 bg-blue-500 text-white text-lg rounded-md hover:bg-blue-600 transition"
+          className="flex-1 px-6 py-3 bg-blue-500 text-white text-lg rounded-md hover:bg-blue-600 transition"
         >
           Clear Bookings
         </button>

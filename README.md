@@ -47,3 +47,12 @@ npm run build
 This project comes with ESLint preconfigured. To run lint checks:
 
 npm run lint
+
+## Node.js version
+
+Vite requires Node.js >= 20.19.0 (or use >=22.12.0). Your current Node.js is 20.17.0. To upgrade on Windows:
+
+- Install nvm-windows: https://github.com/coreybutler/nvm-windows and use `nvm install 22.12.0` then `nvm use 22.12.0`.
+- Or download the Node installer from https://nodejs.org and choose 22.12.0 or later.
+
+This repo also includes a `.nvmrc` with `22.12.0` to help tooling pick the right version.
