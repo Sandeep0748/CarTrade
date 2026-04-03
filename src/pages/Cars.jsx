@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import Title from '../components/Title';
 import { assets } from '../assets/assets';
 import CarCard from '../components/CarCard';
@@ -7,32 +8,68 @@ import { motion } from 'motion/react';
 
 const Cars = () => {
   const { cars } = useAppContext(); // ✅ Cars from backend API
+  const location = useLocation();
   const [input, setInput] = useState('');
   const [filteredCars, setFilteredCars] = useState([]);
 
+  // Extract query parameters from URL
+  const getQueryParams = () => {
+    const params = new URLSearchParams(location.search);
+    return {
+      city: params.get('city') || '',
+      carType: params.get('carType') || '',
+      budget: params.get('budget') ? parseInt(params.get('budget')) : null,
+    };
+  };
+
   // Apply filter
   const applyFilter = () => {
-    if (input === '') {
-      setFilteredCars(cars);
-      return;
+    const { city, carType, budget } = getQueryParams();
+    
+    let filtered = cars;
+
+    // Filter by city (location field)
+    if (city) {
+      filtered = filtered.filter(
+        (car) => car.location.toLowerCase().includes(city.toLowerCase())
+      );
     }
 
-    const filtered = cars.filter(
-      (car) =>
-        car.brand.toLowerCase().includes(input.toLowerCase()) ||
-        car.model.toLowerCase().includes(input.toLowerCase()) ||
-        (car.features && car.features.toLowerCase().includes(input.toLowerCase())) ||
-        (car.category && car.category.toLowerCase().includes(input.toLowerCase()))
-    );
+    // Filter by car type (brand, model, or category)
+    if (carType) {
+      filtered = filtered.filter(
+        (car) =>
+          car.brand.toLowerCase().includes(carType.toLowerCase()) ||
+          car.model.toLowerCase().includes(carType.toLowerCase()) ||
+          (car.category && car.category.toLowerCase().includes(carType.toLowerCase()))
+      );
+    }
+
+    // Filter by budget (pricePerDay)
+    if (budget) {
+      filtered = filtered.filter((car) => car.pricePerDay <= budget);
+    }
+
+    // Apply text search filter on top of the results
+    if (input !== '') {
+      filtered = filtered.filter(
+        (car) =>
+          car.brand.toLowerCase().includes(input.toLowerCase()) ||
+          car.model.toLowerCase().includes(input.toLowerCase()) ||
+          (car.features && car.features.toLowerCase().includes(input.toLowerCase())) ||
+          (car.category && car.category.toLowerCase().includes(input.toLowerCase()))
+      );
+    }
+
     setFilteredCars(filtered);
   };
 
-  // Run filter whenever input/cars update
+  // Run filter whenever input/cars/location update
   useEffect(() => {
     if (cars.length > 0) {
       applyFilter();
     }
-  }, [input, cars]);
+  }, [input, cars, location.search]);
 
   return (
     <div>
