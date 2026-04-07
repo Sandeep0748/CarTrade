@@ -41,7 +41,11 @@ const MyBookings = () => {
        align="left"/>
 
        <div>
-        {bookings.map((booking, index)=>(
+        {bookings.map((booking, index)=>{
+          // Skip rendering if car data is missing
+          if (!booking.car) return null
+          
+          return (
           <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -94,7 +98,8 @@ const MyBookings = () => {
 
 
           </motion.div>
-        ))}
+        )
+        })}
        </div>
       
     </motion.div>
